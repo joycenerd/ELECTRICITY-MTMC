@@ -13,6 +13,7 @@ from collections import defaultdict
 import numpy as np
 import copy
 import random
+import os
 
 from torch.utils.data.sampler import Sampler, RandomSampler
 
@@ -352,6 +353,7 @@ class ImageDataManager(BaseDataManager):
         self._num_train_pids = 0
         self._num_train_cams = 0
 
+        # print(self.train_sets)
         for name in self.train_sets:
             dataset = init_imgreid_dataset(
                 root=self.root, name=name)

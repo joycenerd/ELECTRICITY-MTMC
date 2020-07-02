@@ -1,4 +1,7 @@
 import argparse
+from pathlib import Path
+
+ROOTPATH = "/mnt/md0/new-home/joycenerd/ELECTRICITY-MTMC"
 
 
 def argument_parser():

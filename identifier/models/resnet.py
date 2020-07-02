@@ -274,7 +274,7 @@ def resnet101(num_classes=400, loss={'xent'}, pretrained=True, **kwargs):
         **kwargs
     )
     if pretrained:
-        init_pretrained_weights(model, model_urls['resnet50'])
+        init_pretrained_weights(model, model_urls['resnet101'])
     return model
 
 def resnet34(num_classes, loss={'xent'}, pretrained=True, **kwargs):
@@ -289,6 +289,6 @@ def resnet34(num_classes, loss={'xent'}, pretrained=True, **kwargs):
         **kwargs
     )
     if pretrained:
-        init_pretrained_weights(model, model_urls['resnet50'])
+        init_pretrained_weights(model, model_urls['resnet34'])
     return model
 

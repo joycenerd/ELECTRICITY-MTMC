@@ -48,11 +48,15 @@ def main():
 
     print('Initializing image data manager')
     dm = ImageDataManager(use_gpu, **trainset_kwargs(args))
+
     trainloader, testloader_dict = dm.return_dataloaders()
 
+    
+    # model: resnet101, loss: {cross entropy loss, hard triplet loss}, with pre-trained
     print('Initializing model: {}'.format(args.arch))
     model = models.init_model(name=args.arch, num_classes=dm.num_train_pids, loss={'xent', 'htri'},
                               pretrained=not args.no_pretrained, use_gpu=use_gpu)
+    """
     print('Model size: {:.3f} M'.format(count_num_param(model)))
 
     if args.load_weights and check_isfile(args.load_weights):
@@ -220,7 +224,7 @@ def test(model, queryloader, galleryloader, use_gpu, ranks=[1, 5, 10, 20], retur
 
     if return_distmat:
         return distmat
-    return cmc[0]
+    return cmc[0]"""
 
 
 if __name__ == '__main__':

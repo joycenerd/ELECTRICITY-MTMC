@@ -7,7 +7,11 @@ import re
 import os.path as osp
 
 from .base import BaseImageDataset
+from opts import argument_parser
 
+
+parser=argument_parser()
+args = parser.parse_args()
 
 class Aic(BaseImageDataset):
     """
