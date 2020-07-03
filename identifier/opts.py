@@ -69,8 +69,8 @@ def argument_parser():
     parser.add_argument('--start-epoch', default=0, type=int,
                         help='manual epoch number (useful when restart)')
 
-    parser.add_argument('--train-batch-size', default=128, type=int,
-                        help='training batch size')
+    parser.add_argument('--train-batch-size', default=112, type=int,
+                        help='training batch size') # default 128
     parser.add_argument('--test-batch-size', default=256, type=int,
                         help='test batch size')
 
@@ -132,7 +132,7 @@ def argument_parser():
                         help='path to save log and model weights')
     parser.add_argument('--use-cpu', action='store_true',
                         help='use cpu')
-    parser.add_argument('--gpu-devices', default='0', type=str,
+    parser.add_argument('--gpu-devices', default=0, type=int,
                         help='gpu device ids for CUDA_VISIBLE_DEVICES')
     parser.add_argument('--use-avai-gpus', action='store_true',
                         help='use all available gpus instead of specified devices')

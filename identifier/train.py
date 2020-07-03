@@ -35,7 +35,7 @@ def main():
 
     set_random_seed(args.seed)
     if not args.use_avai_gpus:
-        os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_devices
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu_devices)
     use_gpu = torch.cuda.is_available()
     if args.use_cpu:
         use_gpu = False
@@ -56,17 +56,18 @@ def main():
     print('Initializing model: {}'.format(args.arch))
     model = models.init_model(name=args.arch, num_classes=dm.num_train_pids, loss={'xent', 'htri'},
                               pretrained=not args.no_pretrained, use_gpu=use_gpu)
-    """
+
     print('Model size: {:.3f} M'.format(count_num_param(model)))
 
     if args.load_weights and check_isfile(args.load_weights):
         load_pretrained_weights(model, args.load_weights)
 
-    model = nn.DataParallel(model).cuda() if use_gpu else model
+    # model = nn.DataParallel(model).cuda(args.gpu_devices) if use_gpu else model
+    model = nn.DataParallel(model).cuda(args.gpu_devices)
 
-    criterion_xent = CrossEntropyLoss(num_classes=dm.num_train_pids, use_gpu=use_gpu, label_smooth=args.label_smooth)
+    criterion_xent = CrossEntropyLoss(num_classes=dm.num_train_pids, gpu=args.gpu_devices, use_gpu=use_gpu, label_smooth=args.label_smooth)
     criterion_htri = TripletLoss(margin=args.margin)
-    optimizer = init_optimizer(model, **optimizer_kwargs(args))
+    optimizer = init_optimizer(model, **optimizer_kwargs(args)) # amsgrad
     scheduler = init_lr_scheduler(optimizer, **lr_scheduler_kwargs(args))
 
     if args.resume and check_isfile(args.resume):
@@ -78,6 +79,7 @@ def main():
     for epoch in range(args.start_epoch, args.max_epoch):
         train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, use_gpu)
 
+        """
         scheduler.step()
 
         if (epoch + 1) > args.start_eval and args.eval_freq > 0 and (epoch + 1) % args.eval_freq == 0 or (
@@ -99,7 +101,7 @@ def main():
 
     elapsed = round(time.time() - time_start)
     elapsed = str(datetime.timedelta(seconds=elapsed))
-    print('Elapsed {}'.format(elapsed))
+    print('Elapsed {}'.format(elapsed))"""
 
 
 def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, use_gpu):
@@ -109,16 +111,19 @@ def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, 
     batch_time = AverageMeter()
     data_time = AverageMeter()
 
+    print(f'gpu_device: {args.gpu_devices}')
+    model =  model.cuda(args.gpu_devices)
     model.train()
     for p in model.parameters():
         p.requires_grad = True    # open all layers
 
     end = time.time()
-    for batch_idx, (imgs, pids, _, _) in enumerate(trainloader):
+    for batch_idx, (imgs, pids, _, _) in enumerate(trainloader): # [img, pid, camid, img_path]
         data_time.update(time.time() - end)
 
-        if use_gpu:
-            imgs, pids = imgs.cuda(), pids.cuda()
+        #if use_gpu:
+        #    imgs, pids = imgs.cuda(args.gpu_devices), pids.cuda(args.gpu_devices)
+        imgs, pids = imgs.cuda(args.gpu_devices), pids.cuda(args.gpu_devices)
 
         outputs, features = model(imgs)
         if isinstance(outputs, (tuple, list)):
@@ -131,7 +136,7 @@ def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, 
         else:
             htri_loss = criterion_htri(features, pids)
 
-        loss = args.lambda_xent * xent_loss + args.lambda_htri * htri_loss
+        loss = args.lambda_xent * xent_loss + args.lambda_htri * htri_loss # loss_agg=crossentropyloss+tripletloss
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -224,7 +229,7 @@ def test(model, queryloader, galleryloader, use_gpu, ranks=[1, 5, 10, 20], retur
 
     if return_distmat:
         return distmat
-    return cmc[0]"""
+    return cmc[0]
 
 
 if __name__ == '__main__':

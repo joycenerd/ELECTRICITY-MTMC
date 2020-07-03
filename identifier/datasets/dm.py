@@ -402,7 +402,7 @@ class ImageDataManager(BaseDataManager):
         self.testdataset_dict['test'] = dataset.test
 
         print('\n')
-        print('  **************** Summary ****************')
+        print('  **************** Summary ****************') 
         print('  train names      : {}'.format(self.train_sets))
         print('  # train datasets : {}'.format(len(self.train_sets)))
         print('  # train ids      : {}'.format(self.num_train_pids))
