@@ -76,19 +76,22 @@ def main():
     time_start = time.time()
     print('=> Start training')
 
-    for epoch in range(args.start_epoch, args.max_epoch):
+    for epoch in range(args.start_epoch, args.max_epoch): # 25 epochs
+        print(f'Epoch: {epoch+1}/{args.max_epoch}')
+        print('-'*len(f'Epoch: {epoch+1}/{args.max_epoch}'))
+
         train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, use_gpu)
 
-        """
         scheduler.step()
-
+        
+        # start_eval = 0, eval_freq = 1
         if (epoch + 1) > args.start_eval and args.eval_freq > 0 and (epoch + 1) % args.eval_freq == 0 or (
                 epoch + 1) == args.max_epoch:
             print('=> Validation')
 
             print('Evaluating {} ...'.format(args.test_set))
-            queryloader = testloader_dict['query']
-            galleryloader = testloader_dict['test']
+            queryloader = testloader_dict['query'] # query set
+            galleryloader = testloader_dict['test'] # gallery set
             rank1 = test(model, queryloader, galleryloader, use_gpu)
 
             save_checkpoint({
@@ -101,7 +104,7 @@ def main():
 
     elapsed = round(time.time() - time_start)
     elapsed = str(datetime.timedelta(seconds=elapsed))
-    print('Elapsed {}'.format(elapsed))"""
+    print('Elapsed {}'.format(elapsed))
 
 
 def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, use_gpu):
@@ -111,7 +114,7 @@ def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, 
     batch_time = AverageMeter()
     data_time = AverageMeter()
 
-    print(f'gpu_device: {args.gpu_devices}')
+    # print(f'gpu_device: {args.gpu_devices}')
     model =  model.cuda(args.gpu_devices)
     model.train()
     for p in model.parameters():
@@ -177,16 +180,16 @@ def test(model, queryloader, galleryloader, use_gpu, ranks=[1, 5, 10, 20], retur
                 imgs = imgs.cuda()
 
             end = time.time()
-            features = model(imgs)
+            features = model(imgs)  # get feature map for query image
             batch_time.update(time.time() - end)
 
             features = features.data.cpu()
             qf.append(features)
-            q_pids.extend(pids)
-            q_camids.extend(camids)
-        qf = torch.cat(qf, 0)
-        q_pids = np.asarray(q_pids)
-        q_camids = np.asarray(q_camids)
+            q_pids.extend(pids) # concat all pids
+            q_camids.extend(camids) # concat all camids
+        qf = torch.cat(qf, 0) # convert qf array of tensor to tensor array
+        q_pids = np.asarray(q_pids) # convert q_pids array of tensor to numpy array
+        q_camids = np.asarray(q_camids) # convert q_camids array of tensor to numpy array
 
         print('Extracted features for query set, obtained {}-by-{} matrix'.format(qf.size(0), qf.size(1)))
 
@@ -211,6 +214,7 @@ def test(model, queryloader, galleryloader, use_gpu, ranks=[1, 5, 10, 20], retur
 
     print('=> BatchTime(s)/BatchSize(img): {:.3f}/{}'.format(batch_time.avg, args.test_batch_size))
 
+    # calculate distance map for query and gallery
     m, n = qf.size(0), gf.size(0)
     distmat = torch.pow(qf, 2).sum(dim=1, keepdim=True).expand(m, n) + \
               torch.pow(gf, 2).sum(dim=1, keepdim=True).expand(n, m).t()

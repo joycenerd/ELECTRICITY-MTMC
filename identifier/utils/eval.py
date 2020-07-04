@@ -69,14 +69,18 @@ def eval_veri(distmat, q_pids, g_pids, q_camids, g_camids, max_rank):
     """Evaluation with veri metric
     Key: for each query identity, its gallery images from the same camera view are discarded.
     """
-    num_q, num_g = distmat.shape
+    num_q, num_g = distmat.shape    # rows: query num, col: gallery num
 
-    if num_g < max_rank:
+    if num_g < max_rank:    # if number of gallery set is smaller than 50
         max_rank = num_g
         print('Note: number of gallery samples is quite small, got {}'.format(num_g))
 
-    indices = np.argsort(distmat, axis=1)
+    indices = np.argsort(distmat, axis=1) # sort by indices (small to big) -> every row (each query with all gallery feature distance)
     matches = (g_pids[indices] == q_pids[:, np.newaxis]).astype(np.int32)
+    # print(f'matches size: {matches.shape}')
+    # print(f'g_pids[indices]: {g_pids[indices]}')
+    # print(f'q_pids[:, np.newaxis]: {q_pids[:, np.newaxis]}')
+    # print(f'matches[:10]: {matches[:10]}')
 
     # compute cmc curve for each query
     all_cmc = []
@@ -88,13 +92,14 @@ def eval_veri(distmat, q_pids, g_pids, q_camids, g_camids, max_rank):
         q_pid = q_pids[q_idx]
         q_camid = q_camids[q_idx]
 
-        # remove gallery samples that have the same pid and camid with query
+        # remove gallery samples that have the same pid and camid with query (basically they are the same)
         order = indices[q_idx]
         remove = (g_pids[order] == q_pid) & (g_camids[order] == q_camid)
         keep = np.invert(remove)
 
         # compute cmc curve
         raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
+        break
         if not np.any(raw_cmc):
             # this condition is true when query identity does not appear in gallery
             continue
@@ -102,7 +107,7 @@ def eval_veri(distmat, q_pids, g_pids, q_camids, g_camids, max_rank):
         cmc = raw_cmc.cumsum()
         cmc[cmc > 1] = 1
 
-        all_cmc.append(cmc[:max_rank])
+        all_cmc.append(cmc[:max_rank]) # store all cmc from 0 to 50
         num_valid_q += 1.
 
         # compute average precision
