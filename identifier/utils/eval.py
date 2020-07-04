@@ -99,7 +99,7 @@ def eval_veri(distmat, q_pids, g_pids, q_camids, g_camids, max_rank):
 
         # compute cmc curve
         raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
-        break
+        
         if not np.any(raw_cmc):
             # this condition is true when query identity does not appear in gallery
             continue
