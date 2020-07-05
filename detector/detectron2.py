@@ -31,22 +31,22 @@ class MaskRCNN(Detector):
 
     def __init__(self, gpu_id=None, model=DEFAULT_MODEL, score_thres=0.5):
         super().__init__(gpu_id)
-        cfg_file = CFG_FILES[model]
-        cfg = get_cfg()
-        cfg.merge_from_file(model_zoo.get_config_file(cfg_file))
-        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = score_thres
-        cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(cfg_file)
-        cfg.MODEL.DEVICE = self.device
-        self.model_meta = MetadataCatalog.get(cfg.DATASETS.TRAIN[0])
+        cfg_file = CFG_FILES[model] # res101
+        cfg = get_cfg() # obtain detectron2's default config
+        cfg.merge_from_file(model_zoo.get_config_file(cfg_file)) # Returns path to a builtin config file and merge to detectron2's default config
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = score_thres # threshold for NMS
+        cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(cfg_file) # get res101 detection model
+        cfg.MODEL.DEVICE = self.device # gpu device
+        self.model_meta = MetadataCatalog.get(cfg.DATASETS.TRAIN[0]) # provides access to “Metadata” of a given dataset
         self.cfg = cfg
         self.device = torch.device(cfg.MODEL.DEVICE)
-        self.predictor = DefaultPredictor(cfg)
+        self.predictor = DefaultPredictor(cfg) # Create a simple end-to-end predictor with the given config that runs on single device for a single input image
         self.roi_mask = None
 
     def preprocess(self, images):
         processed_images = []
         for image in images:
-            height, width = image.shape[:2]
+            height, width = image.shape[:2] # get the image shape
             image = image.to(device=self.device, non_blocking=True)
             image = image.permute(2, 0, 1).type(torch.float)
             origin_ratio = width / height

@@ -88,6 +88,8 @@ def main(args):
         logger.info('Running in profiling mode')
     os.makedirs(osp.dirname(args.system_output), exist_ok=True)
     f = open(args.system_output,"w")
+
+    # get video_name, video_id, camera_id, all the video frames
     jobs,vid_dict,vid_size_dict = get_jobs(args)
     system = VideoSystem(args.dataset_dir, args.cache_dir, stride=args.stride)
     logger.info('Running %d jobs', len(jobs))

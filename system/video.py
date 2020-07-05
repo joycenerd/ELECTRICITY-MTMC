@@ -26,10 +26,12 @@ VideoJob = namedtuple('Job', [
 class VideoSystem(System):
 
     def __init__(self, video_dir, cache_dir=None, stage_n=None,
-                 n_gpu=4, batch_size=4, stride=1):
+                 n_gpu=1, batch_size=4, stride=1):
+        # print("__init__")
         available_gpus = GPUtil.getAvailable(
             limit=n_gpu, maxLoad=0.2, maxMemory=0.2)
         n_available_gpu = len(available_gpus)
+        # execution order
         stages = [
             LoaderStage(),
             DetectorStage(available_gpus, 2),
@@ -56,6 +58,7 @@ class VideoSystem(System):
         self.events = []
 
     def init(self, job, **kwargs):
+        # print("init")
         assert isinstance(job, VideoJob)
         n_image = self.batch_size
         if len(self.stages) > 1:
@@ -68,6 +71,7 @@ class VideoSystem(System):
         super().init(task, **kwargs)
 
     def _save_filter(self, results_gen):
+        # print("_save_filter")
         for task in results_gen:
             if isinstance(task.value, MonitorResult):
                 frame = task.value.frame
@@ -82,12 +86,14 @@ class VideoSystem(System):
             yield task
 
     def _log_events(self, results_gen, events):
+        # print("_log_events")
         for task in results_gen:
             if hasattr(task.value, 'events') and task.value.events is not None:
                 events.extend(task.value.events)
             yield task
 
     def do_job(self, job, print_result=0, **kwargs):
+        # print("do_job")
         assert isinstance(job, VideoJob)
         if not self.pipeline.inited:
             self.init(job)
@@ -115,6 +121,7 @@ class VideoSystem(System):
         return events
 
     def process(self, jobs, retry=3, **kwargs):
+        # print("process")
         for job in progressbar(jobs):
             for retry_i in range(retry):
                 try:
@@ -128,4 +135,5 @@ class VideoSystem(System):
                     self.reset()
 
     def get_output(self):
+        # print("get_output")
         return get_output(self.events)

@@ -5,7 +5,7 @@ import argparse
 import shutil
 from pathlib import Path
 
-ROOTPATH="/mnt/md0/new-home/joycenerd/ELECTRICITY-MTMC"
+ROOTPATH="/home/joycenerd/ELECTRICITY-MTMC"
 
 def argument_parser():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -15,7 +15,7 @@ def argument_parser():
                         help='path to the aicity 2020 track 3 folders')
     parser.add_argument('--output_path', type=str, default=str(Path(ROOTPATH).joinpath("exp/imgs/aic_test")),
                         help='path to the output dictionaries')
-    parser.add_argument("--njobs",type = int,default=3,help="number of pools to extract imgs")
+    parser.add_argument("--njobs",type = int,default=4,help="number of pools to extract imgs")
     return parser
 
 def sort_tracklets(gts):
