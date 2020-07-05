@@ -3,14 +3,17 @@ import cv2
 from multiprocessing import Pool
 import argparse
 import shutil
+from pathlib import Path
+
+ROOTPATH="/mnt/md0/new-home/joycenerd/ELECTRICITY-MTMC"
 
 def argument_parser():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--tracklet_path', type=str, default="./exp/tracklets.txt",
+    parser.add_argument('--tracklet_path', type=str, default=str(Path(ROOTPATH).joinpath("exp/tracklets.txt")),
                         help='path to the tracklets')
-    parser.add_argument('--data_path', type=str, default="./datasets/aic_20_trac3",
+    parser.add_argument('--data_path', type=str, default=str(Path(ROOTPATH).joinpath("datasets/aic_20_trac3")),
                         help='path to the aicity 2020 track 3 folders')
-    parser.add_argument('--output_path', type=str, default="./exp/imgs/aic_test",
+    parser.add_argument('--output_path', type=str, default=str(Path(ROOTPATH).joinpath("exp/imgs/aic_test")),
                         help='path to the output dictionaries')
     parser.add_argument("--njobs",type = int,default=3,help="number of pools to extract imgs")
     return parser

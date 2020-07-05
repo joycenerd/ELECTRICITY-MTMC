@@ -4,7 +4,7 @@ from typing import List, Union
 from ..pipeline import LoggedTask, Pipeline, Stage
 from ..utils import get_logger
 
-resource.setrlimit(resource.RLIMIT_NOFILE, (1048576, 1048576))
+# resource.setrlimit(resource.RLIMIT_NOFILE, (1048576, 1048576))
 
 
 class System(object):

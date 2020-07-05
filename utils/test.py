@@ -5,7 +5,7 @@ from .run import main, parse_args
 
 
 cur_path = os.getcwd()
-DATA_PATH = "./ELECTRICITY-MTMC/datasets/aic_20_trac3/test"
+DATA_PATH = "/mnt/md0/new-home/joycenerd/ELECTRICITY-MTMC/datasets/aic_20_trac3/test"
 OUT_PATH = os.path.join(cur_path,"ELECTRICITY-MTMC","exp")
 if not osp.exists(OUT_PATH):
     os.makedirs(OUT_PATH)
