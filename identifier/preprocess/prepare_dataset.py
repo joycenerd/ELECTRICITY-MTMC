@@ -4,7 +4,7 @@ from pathlib import Path
 from multiprocessing import Pool
 import shutil
 
-ROOTPATH = "/mnt/md0/new-home/joycenerd/ELECTRICITY-MTMC"
+ROOTPATH = "/mnt/hdd1/home/joycenerd/ELECTRICITY-MTMC"
 base_path = Path(ROOTPATH).joinpath("datasets/aic_20_trac3") # original raw dataset path
 data_path = Path(ROOTPATH).joinpath("datasets/Aic")  # split original data and save to here
 splits = ["train","validation"]

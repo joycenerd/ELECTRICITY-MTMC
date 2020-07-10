@@ -56,9 +56,19 @@ def main():
     print('Initializing model: {}'.format(args.arch))
     model = models.init_model(name=args.arch, num_classes=dm.num_train_pids, loss={'xent', 'htri'},
                               pretrained=not args.no_pretrained, use_gpu=use_gpu)
+    checkpoint_path = "/mnt/hdd1/home/joycenerd/ELECTRICITY-MTMC/checkpoints/model.pth.tar-9"
+    checkpoint = torch.load(str(checkpoint_path))
+    model.load_state_dict(checkpoint['state_dict'], strict=False)
+    model = model.cuda()
 
+    queryloader = testloader_dict['query'] # query set
+    galleryloader = testloader_dict['test'] # gallery set
+    rank1 = test(model, queryloader, galleryloader, use_gpu)
+
+    """
     print('Model size: {:.3f} M'.format(count_num_param(model)))
 
+    
     if args.load_weights and check_isfile(args.load_weights):
         load_pretrained_weights(model, args.load_weights)
 
@@ -104,7 +114,7 @@ def main():
 
     elapsed = round(time.time() - time_start)
     elapsed = str(datetime.timedelta(seconds=elapsed))
-    print('Elapsed {}'.format(elapsed))
+    print('Elapsed {}'.format(elapsed))"""
 
 
 def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, use_gpu):

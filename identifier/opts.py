@@ -132,7 +132,7 @@ def argument_parser():
                         help='path to save log and model weights')
     parser.add_argument('--use-cpu', action='store_true',
                         help='use cpu')
-    parser.add_argument('--gpu-devices', default=0, type=int,
+    parser.add_argument('--gpu-devices', default=1, type=int,
                         help='gpu device ids for CUDA_VISIBLE_DEVICES')
     parser.add_argument('--use-avai-gpus', action='store_true',
                         help='use all available gpus instead of specified devices')
