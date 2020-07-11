@@ -56,6 +56,7 @@ def main():
     print('Initializing model: {}'.format(args.arch))
     model = models.init_model(name=args.arch, num_classes=dm.num_train_pids, loss={'xent', 'htri'},
                               pretrained=not args.no_pretrained, use_gpu=use_gpu)
+    """
     checkpoint_path = "/mnt/hdd1/home/joycenerd/ELECTRICITY-MTMC/checkpoints/model.pth.tar-9"
     checkpoint = torch.load(str(checkpoint_path))
     model.load_state_dict(checkpoint['state_dict'], strict=False)
@@ -64,8 +65,8 @@ def main():
     queryloader = testloader_dict['query'] # query set
     galleryloader = testloader_dict['test'] # gallery set
     rank1 = test(model, queryloader, galleryloader, use_gpu)
-
     """
+
     print('Model size: {:.3f} M'.format(count_num_param(model)))
 
     
@@ -73,7 +74,7 @@ def main():
         load_pretrained_weights(model, args.load_weights)
 
     # model = nn.DataParallel(model).cuda(args.gpu_devices) if use_gpu else model
-    model = nn.DataParallel(model).cuda(args.gpu_devices)
+    model = nn.DataParallel(model).cuda()
 
     criterion_xent = CrossEntropyLoss(num_classes=dm.num_train_pids, gpu=args.gpu_devices, use_gpu=use_gpu, label_smooth=args.label_smooth)
     criterion_htri = TripletLoss(margin=args.margin)
@@ -114,7 +115,7 @@ def main():
 
     elapsed = round(time.time() - time_start)
     elapsed = str(datetime.timedelta(seconds=elapsed))
-    print('Elapsed {}'.format(elapsed))"""
+    print('Elapsed {}'.format(elapsed))
 
 
 def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, use_gpu):
@@ -125,7 +126,7 @@ def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, 
     data_time = AverageMeter()
 
     # print(f'gpu_device: {args.gpu_devices}')
-    model =  model.cuda(args.gpu_devices)
+    model =  model.cuda()
     model.train()
     for p in model.parameters():
         p.requires_grad = True    # open all layers
@@ -134,9 +135,11 @@ def train(epoch, model, criterion_xent, criterion_htri, optimizer, trainloader, 
     for batch_idx, (imgs, pids, _, _) in enumerate(trainloader): # [img, pid, camid, img_path]
         data_time.update(time.time() - end)
 
+        print(pids)
+
         #if use_gpu:
         #    imgs, pids = imgs.cuda(args.gpu_devices), pids.cuda(args.gpu_devices)
-        imgs, pids = imgs.cuda(args.gpu_devices), pids.cuda(args.gpu_devices)
+        imgs, pids = imgs.cuda(), pids.cuda()
 
         outputs, features = model(imgs)
         if isinstance(outputs, (tuple, list)):
